@@ -1,0 +1,86 @@
+@@ -0,0 +1,84 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace NumberGuesser
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            DateTime open = DateTime.Now;
+            Random random = new Random();
+            int number = random.Next(100);
+            int shagi = 0;
+            int zlo = 0;
+            String ans;
+            int intAnswer = 0;
+            String[] memoryArray = new String[1000];
+
+            Console.WriteLine("Привет! Зпиши свое имя. И проверьте свою удачу. Если решите сдаться нажмите q");
+            String userName = Console.ReadLine();
+            String[] angryString = new String[5] { String.Format("{0}, как можно не угодать то?.\n", userName), String.Format("{0}, слишком сложно для тебя?.\n", userName), String.Format("{0}, удача подвела тебя, мой друг.ты мне не друг.\n", userName), String.Format("{0}, еще попробуешь или сдаешься? .\n", userName), String.Format("{0}, спроси у друзей мож они тебе помугут, раз сам не можешь.\n", userName)};
+            Console.WriteLine(" {0}, давай поиграем. Я загадала число от 0 до 100, угадай его.\nПоехали!", userName);
+
+            do
+            {
+                if (zlo == 4)
+                {
+                    Console.Write(angryString[random.Next(5)]);
+                    zlo = 0;
+                }
+
+                ans = Console.ReadLine();
+                bool checkAnswer = int.TryParse(ans, out intAnswer);
+                
+                if (ans.Equals("q"))
+                {
+                    Console.WriteLine("Примите мои извинения. Я закрываюсь.\nPress any key...");
+                    Console.Read();
+                    Environment.Exit(0);
+
+                }
+
+                if (checkAnswer)
+                {
+                    zlo++;
+                    shagi++;
+
+                    if (number > intAnswer)
+                    {
+                        Console.WriteLine("Мое число больше твоего. Давай еще раз");
+                        memoryArray[shagi] = String.Format("{0}, меньше", ans);
+                    }
+                    if (number < intAnswer)
+                    {
+                        Console.WriteLine("Мое число меньше твоего. Давай еще раз.");
+                        memoryArray[shagi] = String.Format("{0}, больше", ans);
+                    }
+
+                }
+                else
+                {
+                    Console.WriteLine("Это не число. Давайка еще разок.");
+                    continue;
+                }
+
+            }
+            while (number != intAnswer);
+
+            DateTime close = DateTime.Now;
+            TimeSpan interval = close - open;
+            Console.WriteLine("Поздравляю! Тебе повезло ты угадал. Вы справились за {0} шагов. посмотри на них:", shagi);
+            for (int i = 0; i < shagi; i++)
+            {
+                Console.WriteLine("{0}", memoryArray[i]);
+            }
+            Console.WriteLine("{0} , это верный ответ", number);
+            Console.WriteLine("\nВы потратили на игру {0} минут.\nPress any key...", interval.Minutes);
+            Console.Read();
+        }
+    }
+}
+\ No newline at end of file

@@ -1,0 +1,55 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+namespace LinesCounter
+{
+    class LinesCounter
+    {
+        const string Empty = @"^\s+$[\r\n]*";
+        const string BlockComments = @"/\*(.*?)\*/";
+        const string Strings = @"""((\\[^\n]|[^""\n])*)""";
+        const string LineComments = @"//(.*?)\r?\n";
+        const string VerbatimStrings = @"@(""[^""]*"")+";
+ 
+        public static void Main(string[] args)
+        {
+            if (args.Length != 2)
+            {
+                Console.WriteLine("Bad arguments.\nPlease enter according to the template:\"[directory]\" \".[file extension]\"");
+                return;
+            }
+            Console.WriteLine(CountLinesInDirectory(new DirectoryInfo(args[0]), args[1]) + " lines");
+            Console.ReadKey();
+        }
+ 
+ 
+        private static int CountLinesInDirectory(DirectoryInfo directoryInfo, string extension)
+        {
+ 
+            var numberOfLines = 0;
+            numberOfLines += directoryInfo.EnumerateFiles(extension).Sum(file => CountLinesInFile(file));
+            numberOfLines += directoryInfo.EnumerateDirectories().Sum(dir => CountLinesInDirectory(dir, extension));
+            return numberOfLines;
+        }
+ 
+        private static int CountLinesInFile(FileInfo fileInfo)
+        {
+            string noCommentsAndEmptyLines;
+            using (var reader = new StreamReader(fileInfo.OpenRead(), Encoding.UTF8))
+            {
+                var longString = reader.ReadToEnd();
+ 
+                noCommentsAndEmptyLines = Regex.Replace(longString, BlockComments + "|" + LineComments + "|" + Strings + "|" + VerbatimStrings + "|" + Empty,
+                    me =>
+                    {
+                        if (me.Value.StartsWith("/*") || me.Value.StartsWith("//") || me.Value.StartsWith("\r") || me.Value.StartsWith("\n"))
+                            return "";
+                        return me.Value;
+                    }, RegexOptions.Multiline);
+            }
+            return noCommentsAndEmptyLines.Count(f => f == '\n'); ;
+        }
+    }
+}
